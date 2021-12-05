@@ -1,29 +1,30 @@
-function range(start, finish) {
-  const arr = new Array(finish - start);
-  for (let i = start; i < finish; i++) {
-    arr.push(i);
-  }
+import { PrismaClient } from "@prisma/client";
 
-  return arr;
-}
+const prisma = new PrismaClient();
 
-describe("Scratchpad", () => {
-  it("should run", () => {
-    function fizzBuzz(num: number) {
-      if (num % 3 === 0 && num % 5 === 0) return "FizzBuzz";
-      if (num % 3 === 0) return "Fizz";
-      if (num % 5 === 0) return "Buzz";
-      return String(num);
+beforeEach(async () => {
+  await prisma.task.deleteMany();
+});
+
+it("Should create a task", async () => {
+  await prisma.task.create({
+    data: {
+      title: "Minha primeira tarefa"
     }
-
-    const array = range(1, 100).map(fizzBuzz);
-    console.log(array);
   });
 
-  it.only("reduce works!", () => {
-    const add = (x, y) => x + y;
-    const sum = range(1, 6).reduce(add);
+  const tasks = await prisma.task.findMany();
+  expect(tasks).toHaveLength(1);
+});
 
-    console.log("the sum is", sum);
+it("Should validate default properties of a task", async () => {
+  const task = await prisma.task.create({
+    data: {
+      title: "Minha primeira tarefa"
+    }
   });
+
+  expect(task.id).toStrictEqual(expect.any(String));
+  expect(task.state).toBe(true);
+  expect(task.title).toBe("Minha primeira tarefa");
 });
