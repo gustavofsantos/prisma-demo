@@ -11,7 +11,15 @@ datasource db {
 }
 
 model Task {
-  id    String  @id @default(cuid())
+  id        String  @id @default(cuid())
+  title     String
+  state     Boolean @default(true)
+  projectId String?
+  project   Project? @relation(fields: [projectId], references: [id])
+}
+
+model Project {
+  id    String @id @default(cuid())
   title String
-  state Boolean @default(true)
+  tasks Task[]
 }
